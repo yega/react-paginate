@@ -1,8 +1,7 @@
-/** @jsx React.DOM */
 'use strict';
 
 var React         = require('react');
-var ReactPaginate = require('./../react_components');
+var ReactPaginate = require('./../react_components/react-paginate');
 var $             = require('jquery');
 
 window.React = React;

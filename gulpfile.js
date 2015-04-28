@@ -5,11 +5,12 @@ var path       = require('path');
 var util       = require('util');
 var gulp       = require('gulp');
 var browserify = require('browserify');
-var reactify   = require('reactify');
+var babelify   = require('babelify');
 var source     = require('vinyl-source-stream');
 var buffer     = require('vinyl-buffer');
 var uglify     = require('gulp-uglify');
 var nodemon    = require('gulp-nodemon');
+var babel      = require('gulp-babel');
 
 var CONFIG = {
   sample: {
@@ -42,27 +43,23 @@ gulp.task('generate:data', function(cb) {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('./react_components/*.jsx', ['app', 'sample']);
+  gulp.watch('./react_components/*.js', ['dist', 'sample']);
   gulp.watch('./sample/sample.jsx', ['sample']);
-});
-
-gulp.task('app', function() {
-  return browserify('./react_components/index.js')
-    .transform(reactify)
-    .bundle()
-    .pipe(source('react-paginate.js'))
-    .pipe(buffer())
-    .pipe(uglify())
-    .pipe(gulp.dest('./build'));
 });
 
 gulp.task('sample', function() {
   return browserify('./sample/sample.jsx')
-    .transform(reactify)
+    .transform(babelify)
     .bundle()
     .pipe(source('sample.js'))
     .pipe(buffer())
     .pipe(gulp.dest('./sample'));
+});
+
+gulp.task('dist', function() {
+  return gulp.src('./react_components/*.js')
+    .pipe(babel())
+    .pipe(gulp.dest('./dist/'));
 });
 
 gulp.task('server:watch', function () {
@@ -71,9 +68,9 @@ gulp.task('server:watch', function () {
 });
 
 gulp.task('server:reload', function() {
-  gulp.watch('./react_components/*.jsx', ['app', 'sample']);
+  gulp.watch('./react_components/*.js', ['dist', 'sample']);
   gulp.watch('./sample/sample.jsx', ['sample']);
 });
 
-gulp.task('serve', ['app', 'sample', 'generate:data', 'server:watch']);
-gulp.task('default', ['app', 'sample']);
+gulp.task('serve', ['dist', 'sample', 'generate:data', 'server:watch']);
+gulp.task('default', ['dist', 'sample']);
